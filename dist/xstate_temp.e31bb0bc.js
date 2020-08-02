@@ -5408,12 +5408,6 @@ var machine = (0, _xstate.createMachine)({
               return fahrenheitToCelsius(e.value);
             }
           }), "logNewValues"]
-        },
-        RESET_VALUES: {
-          actions: (0, _xstate.assign)({
-            fahrenheit: null,
-            celsius: null
-          })
         }
       }
     }
@@ -5426,26 +5420,17 @@ var machine = (0, _xstate.createMachine)({
   }
 });
 var service = (0, _xstate.interpret)(machine).start().onTransition(updateDom);
-
-var sendEventType = function sendEventType(type, e) {
-  var value = e.target.value;
-  if (isNaN(Number(value))) return; // we want any form of an empty string to rest the values
-
-  if (value.trim() === "") {
-    service.send("RESET_VALUES");
-  } else {
-    service.send({
-      type: type,
-      value: value
-    });
-  }
-};
-
 celsiusInput.addEventListener("input", function (e) {
-  return sendEventType("UPDATE_FAHRENHEIT", e);
+  return service.send({
+    type: "UPDATE_FAHRENHEIT",
+    value: e.target.value
+  });
 });
 fahrenheitInput.addEventListener("input", function (e) {
-  return sendEventType("UPDATE_CELSIUS", e);
+  return service.send({
+    type: "UPDATE_CELSIUS",
+    value: e.target.value
+  });
 });
 },{"xstate":"node_modules/xstate/es/index.js"}],"../../../../.config/yarn/global/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
@@ -5475,7 +5460,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50182" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "58564" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

@@ -3,7 +3,6 @@ import { createMachine, interpret, assign } from "xstate";
 const fahrenheitToCelsius = (temp) => ((temp - 32) * 5) / 9;
 const celsiusToFahrenheit = (temp) => temp * (9 / 5) + 32;
 
-
 const celsiusInput = document.querySelector("#celsius");
 const fahrenheitInput = document.querySelector("#fahrenheit");
 
@@ -41,12 +40,6 @@ const machine = createMachine(
               "logNewValues",
             ],
           },
-          RESET_VALUES: {
-            actions: assign({
-              fahrenheit: null,
-              celsius: null,
-            }),
-          },
         },
       },
     },
@@ -62,24 +55,16 @@ const machine = createMachine(
 
 const service = interpret(machine).start().onTransition(updateDom);
 
-const sendEventType = (type, e) => {
-  const value = e.target.value;
-  if (isNaN(Number(value))) return;
-  // we want any form of an empty string to rest the values
-  if (value.trim() === "") {
-    service.send("RESET_VALUES");
-  } else {
-    service.send({
-      type,
-      value,
-    });
-  }
-};
-
 celsiusInput.addEventListener("input", (e) =>
-  sendEventType("UPDATE_FAHRENHEIT", e)
+  service.send({
+    type: "UPDATE_FAHRENHEIT",
+    value: e.target.value,
+  })
 );
 
 fahrenheitInput.addEventListener("input", (e) =>
-  sendEventType("UPDATE_CELSIUS", e)
+  service.send({
+    type: "UPDATE_CELSIUS",
+    value: e.target.value,
+  })
 );
