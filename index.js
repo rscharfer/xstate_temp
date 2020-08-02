@@ -23,22 +23,13 @@ const machine = createMachine(
       active: {
         on: {
           UPDATE_FAHRENHEIT: {
-            actions: [
-              assign({
-                fahrenheit: (_, e) => celsiusToFahrenheit(e.value),
-                celsius: (_, e) => e.value,
-              }),
-              "logNewValues",
-            ],
+            actions: ["updateFahrenheit", "logNewValues"],
           },
           UPDATE_CELSIUS: {
-            actions: [
-              assign({
-                fahrenheit: (_, e) => e.value,
-                celsius: (_, e) => fahrenheitToCelsius(e.value),
-              }),
-              "logNewValues",
-            ],
+            actions: ["updateCelsius", "logNewValues"],
+          },
+          RESET: {
+            actions: ["reset", "logNewValues"],
           },
         },
       },
@@ -49,18 +40,33 @@ const machine = createMachine(
       logNewValues: (c, e) => {
         console.log("new values", c, e);
       },
+      updateFahrenheit: assign({
+        fahrenheit: (_, e) => celsiusToFahrenheit(e.value),
+        celsius: (_, e) => e.value,
+      }),
+      updateCelsius: assign({
+        fahrenheit: (_, e) => e.value,
+        celsius: (_, e) => fahrenheitToCelsius(e.value),
+      }),
+      reset: assign({
+        fahrenheit: null,
+        celsius: null,
+      }),
     },
   }
 );
 
 const service = interpret(machine).start().onTransition(updateDom);
 
-celsiusInput.addEventListener("input", (e) =>
-  service.send({
-    type: "UPDATE_FAHRENHEIT",
-    value: e.target.value,
-  })
-);
+celsiusInput.addEventListener("input", (e) => {
+  if (e.target.value.trim() === "") {
+    service.send("RESET");
+  } else
+    service.send({
+      type: "UPDATE_FAHRENHEIT",
+      value: e.target.value,
+    });
+});
 
 fahrenheitInput.addEventListener("input", (e) =>
   service.send({

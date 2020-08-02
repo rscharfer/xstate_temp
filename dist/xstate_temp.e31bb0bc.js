@@ -5390,24 +5390,13 @@ var machine = (0, _xstate.createMachine)({
     active: {
       on: {
         UPDATE_FAHRENHEIT: {
-          actions: [(0, _xstate.assign)({
-            fahrenheit: function fahrenheit(_, e) {
-              return celsiusToFahrenheit(e.value);
-            },
-            celsius: function celsius(_, e) {
-              return e.value;
-            }
-          }), "logNewValues"]
+          actions: ["updateFahrenheit", "logNewValues"]
         },
         UPDATE_CELSIUS: {
-          actions: [(0, _xstate.assign)({
-            fahrenheit: function fahrenheit(_, e) {
-              return e.value;
-            },
-            celsius: function celsius(_, e) {
-              return fahrenheitToCelsius(e.value);
-            }
-          }), "logNewValues"]
+          actions: ["updateCelsius", "logNewValues"]
+        },
+        RESET: {
+          actions: ["reset", "logNewValues"]
         }
       }
     }
@@ -5416,12 +5405,34 @@ var machine = (0, _xstate.createMachine)({
   actions: {
     logNewValues: function logNewValues(c, e) {
       console.log("new values", c, e);
-    }
+    },
+    updateFahrenheit: (0, _xstate.assign)({
+      fahrenheit: function fahrenheit(_, e) {
+        return celsiusToFahrenheit(e.value);
+      },
+      celsius: function celsius(_, e) {
+        return e.value;
+      }
+    }),
+    updateCelsius: (0, _xstate.assign)({
+      fahrenheit: function fahrenheit(_, e) {
+        return e.value;
+      },
+      celsius: function celsius(_, e) {
+        return fahrenheitToCelsius(e.value);
+      }
+    }),
+    reset: (0, _xstate.assign)({
+      fahrenheit: null,
+      celsius: null
+    })
   }
 });
 var service = (0, _xstate.interpret)(machine).start().onTransition(updateDom);
 celsiusInput.addEventListener("input", function (e) {
-  return service.send({
+  if (e.target.value.trim() === "") {
+    service.send("RESET");
+  } else service.send({
     type: "UPDATE_FAHRENHEIT",
     value: e.target.value
   });
@@ -5460,7 +5471,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "58564" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63507" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
